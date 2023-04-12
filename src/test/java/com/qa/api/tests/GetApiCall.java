@@ -2,10 +2,7 @@ package com.qa.api.tests;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.playwright.APIRequest;
-import com.microsoft.playwright.APIRequestContext;
-import com.microsoft.playwright.APIResponse;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.RequestOptions;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
@@ -69,6 +66,56 @@ public class GetApiCall {
         JsonNode jsonResNode= objectMapper.readTree(response.body());
         System.out.println("Print Response Body---------------------");
         System.out.println( jsonResNode.toPrettyString());
+
+    }
+    @Test
+    public void disposeResponseBodyTest(){
+        System.out.println("------------Request 01----------------");
+        APIResponse response= requestContext.get("https://gorest.co.in/public/v2/users");
+        System.out.println("Response2 Text Before dispose: "+ response.text());
+        response.dispose();  // Dispose method only dispose  response body it not dispose status, statusText, URl etc.
+        int statusCode= response.status();
+        assertEquals(statusCode,200);
+        System.out.println("Print status code---------------------");
+        System.out.println("Response  status code:"+statusCode);
+        String statusResText= response.statusText();
+        System.out.println("Print status Text---------------------");
+        System.out.println(statusResText);
+        try {
+            System.out.println("Response Text after dispose: "+ response.text());
+
+        }
+        catch (PlaywrightException e){
+            System.out.println("Response body is disposed:");
+        }
+
+
+        System.out.println("------------Request 02----------------");
+        APIResponse ApiResponse= requestContext.get("     https://reqres.in/api/users?page=2");
+        assertEquals(ApiResponse.status(),200);
+        System.out.println("Print status code---------------------");
+        System.out.println("Response  status code:"+statusCode);
+        String statusResTxt= ApiResponse.statusText();
+        System.out.println("Print status Text---------------------");
+        System.out.println(statusResTxt);
+        System.out.println("Response Text Before dispose: "+ ApiResponse.text());
+        requestContext.dispose();
+        try {
+            System.out.println("Response1 Text after dispose: "+ response.text());
+
+        }
+        catch (PlaywrightException e){
+            System.out.println("Response1 body is disposed:");
+        }
+
+        try {
+            System.out.println("Response2 Text after dispose: "+ ApiResponse.text());
+
+        }
+        catch (PlaywrightException e){
+            System.out.println("Response2 body is disposed:");
+        }
+
 
     }
 
